@@ -1,7 +1,7 @@
 let stream;
 let chunks;
 let mediaRecord;
-const useAudio = false;
+const useAudio = true;
 let isRecordAreaLoaded = false;
 const mainAreaElement = document.querySelector('main');
 const changeAreaButton = document.getElementById('change-area');
@@ -149,7 +149,7 @@ function loadOpenVideoButton() {
         {
           description: 'Videos',
           accept: {
-            'video/*': []
+            'video/*': ['.webm']
           }
         }
       ],
@@ -193,7 +193,7 @@ async function getSaveFileHandle() {
       types: [
         {
           description: 'Video',
-          accept: { 'video/x-matroska': ['.mkv'] }
+          accept: { 'video/webm': ['.webm'] }
         }
       ]
     };
@@ -228,7 +228,7 @@ async function loadVideoStream() {
 
 function getMediaRecord(stream) {
   const mediaRecord = new MediaRecorder(stream, {
-    mimeType: 'video/x-matroska;codecs=avc1'
+    mimeType: 'video/webm;codecs=vp8,opus'
   });
 
   mediaRecord.ondataavailable = handlerDataAvailableInRecord;
