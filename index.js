@@ -2,7 +2,7 @@ let stream;
 let chunks;
 let mediaRecord;
 const useAudio = true;
-let isRecordAreaLoaded = false;
+let isLoadedRecordArea = true;
 const mainAreaElement = document.querySelector('main');
 const changeAreaButton = document.getElementById('change-area');
 let stopAndSaveButton;
@@ -17,7 +17,7 @@ const recordAreaTemplate = `
 <button id="start-record">Start Record</button>
 `;
 
-const reproducerAreaTemplate = `
+const videoPlayerAreaTemplate = `
 <button id="open-video">Open Video</button>
 <br>
 <br>
@@ -27,9 +27,9 @@ const reproducerAreaTemplate = `
 window.addEventListener("load", async () => {
   loadChangeAreaButton();
   
-  const areaBuilder  = isRecordAreaLoaded
-  ? buildRecordArea
-  : buildReproducerArea;
+  const areaBuilder  = isLoadedRecordArea
+  ? buildVideoRecordArea
+  : buildVideoPlayerArea;
 
   await areaBuilder();
 });
@@ -60,26 +60,26 @@ function setRecordState(state) {
 }
 
 function loadChangeAreaButton() {
-  changeAreaButton.innerText = isRecordAreaLoaded
-    ? 'Load Reproducer'
-    : 'Load Record';
+  changeAreaButton.innerText = isLoadedRecordArea
+    ? 'Load Video Player'
+    : 'Load Video Record';
 
   changeAreaButton.addEventListener('click', async () => {
-    isRecordAreaLoaded = !isRecordAreaLoaded;
+    isLoadedRecordArea = !isLoadedRecordArea;
 
-    changeAreaButton.innerText = isRecordAreaLoaded
-    ? 'Load Reproducer'
-    : 'Load Record';
+    changeAreaButton.innerText = isLoadedRecordArea
+    ? 'Load Video Player'
+    : 'Load Video Record';
 
-    const areaBuilder  = isRecordAreaLoaded
-      ? buildRecordArea
-      : buildReproducerArea;
+    const areaBuilder  = isLoadedRecordArea
+      ? buildVideoRecordArea
+      : buildVideoPlayerArea;
 
     await areaBuilder();
   });
 }
 
-async function buildRecordArea() {
+async function buildVideoRecordArea() {
   mainAreaElement.innerHTML = recordAreaTemplate;
   
   stopAndSaveButton = document.getElementById('save-video');
@@ -98,15 +98,15 @@ async function buildRecordArea() {
   if (videoStreamIsLoaded === false)
     return;
   
-  reproducerStream(stream);
+  playStream(stream);
 
   loadStartButton();
   loadStopAndSaveButton();
   setRecordState(recordState.Normal);
 }
 
-function buildReproducerArea() {
-  mainAreaElement.innerHTML = reproducerAreaTemplate;
+function buildVideoPlayerArea() {
+  mainAreaElement.innerHTML = videoPlayerAreaTemplate;
 
   openVideoButton = document.getElementById('open-video');
   visualizationVideoPlayer = document.getElementById('visualization-area');
@@ -207,7 +207,7 @@ async function getSaveFileHandle() {
     return handleSaveFile;
 }
 
-function reproducerStream(stream) {
+function playStream(stream) {
   const videoElement = document.querySelector('video');
   videoElement.srcObject = stream;
 }
@@ -228,7 +228,7 @@ async function loadVideoStream() {
 
 function getMediaRecord(stream) {
   const mediaRecord = new MediaRecorder(stream, {
-    mimeType: 'video/webm;codecs=vp8,opus'
+    mimeType: 'video/webm; codecs=vp9'
   });
 
   mediaRecord.ondataavailable = handlerDataAvailableInRecord;
