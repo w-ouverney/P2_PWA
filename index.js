@@ -25,6 +25,16 @@ const videoPlayerAreaTemplate = `
 `;
 
 window.addEventListener("load", async () => {
+  if (!acceptFileSystemAccess()) {
+    alert('Your browser not support File System API.');
+    return;
+  }
+
+  if (!acceptMediaStreamRecording()) {
+    alert('Your browser not support MediaStream Recording API.');
+    return;
+  }
+
   loadChangeAreaButton();
   
   const areaBuilder  = isLoadedRecordArea
@@ -112,6 +122,22 @@ function buildVideoPlayerArea() {
   visualizationVideoPlayer = document.getElementById('visualization-area');
 
   loadOpenVideoButton();
+}
+
+
+
+async function loadVideoStream() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia(
+    {
+      video: true,
+      audio: useAudio
+    });
+
+    return true;
+  } catch (error) {
+    return false;
+  }
 }
 
 function loadStartButton() {
@@ -212,20 +238,6 @@ function playStream(stream) {
   videoElement.srcObject = stream;
 }
 
-async function loadVideoStream() {
-  try {
-    stream = await navigator.mediaDevices.getUserMedia(
-    {
-      video: true,
-      audio: useAudio
-    });
-
-    return true;
-  } catch (error) {
-    return false;
-  }
-}
-
 function getMediaRecord(stream) {
   const mediaRecord = new MediaRecorder(stream, {
     mimeType: 'video/webm; codecs=vp9'
@@ -240,6 +252,16 @@ function handlerDataAvailableInRecord(eventBlob) {
   if (eventBlob.data.size <= 0) return;
 
   chunks.push(eventBlob.data);
+}
+
+function acceptFileSystemAccess() {
+  return window.showOpenFilePicker !== undefined &&
+         window.showSaveFilePicker !== undefined &&
+         window.showDirectoryPicker !== undefined;
+}
+
+function acceptMediaStreamRecording() {
+  return typeof(MediaRecorder) !== undefined;
 }
 
 function acceptDevicesAccess() {
